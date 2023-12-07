@@ -1,0 +1,20 @@
+[
+  {
+    "model": "tunaapi.artist",
+    "pk": 1,
+    "fields": {
+      "name": "Bone Thugs-n-Harmony",
+      "age": 30,
+      "bio": "Placeholder Bio"
+    }
+  },
+  {
+    "model": "tunaapi.artist",
+    "pk": 2,
+    "fields": {
+      "name": "The Beatles",
+      "age": 63,
+      "bio": "Placeholder Bio"
+    }
+  }
+]
