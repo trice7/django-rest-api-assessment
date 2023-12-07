@@ -35,7 +35,7 @@ class ArtistView(ViewSet):
   def create(self, request):
     """Handle POST operations for artists
     
-    Returns -> JSON serialized artist instance"""
+    Returns -> JSON serialized artist instance with a status of 201"""
     
     artist = Artist.objects.create(
       name = request.data['name'],
@@ -44,12 +44,12 @@ class ArtistView(ViewSet):
     )
     
     serializer = ArtistSerializer(artist)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
   
   def update(self, request, pk):
-    """Handles PUT reqeust for an artist
+    """Handles PUT request for an artist
     
-    Returns -> Empty body with 204 status code"""
+    Returns -> JSON serialized artist with 200 status code"""
     
     artist = Artist.objects.get(pk=pk)
     artist.name = request.data['name']
@@ -57,9 +57,14 @@ class ArtistView(ViewSet):
     artist.bio = request.data['bio']
     
     artist.save()
-    return Response(None, status=status.HTTP_204_NO_CONTENT)
+    
+    serializer = ArtistSerializer(artist)
+    return Response(serializer.data, status=status.HTTP_200_OK)
   
   def destroy(self, request, pk):
+    """Handles Delete request for an artist
+    
+    Returns -> Empty body with 204 status code"""
     artist = Artist.objects.get(pk=pk)
     artist.delete()
     return Response(None, status=status.HTTP_204_NO_CONTENT)
