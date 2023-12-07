@@ -1,0 +1,12 @@
+[
+  {
+    "model": "tunaapi.song",
+    "pk": 1,
+    "fields": {
+      "title": "Crossroads",
+      "artist_id": 1,
+      "album": "E. 1995 Eternal",
+      "length": 224
+    }
+  }
+]
