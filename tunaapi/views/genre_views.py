@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from tunaapi.models import Genre
+from tunaapi.models import Genre, Song, SongGenre
 
 class GenreView(ViewSet):
   """Tuna Piano Genre View"""
@@ -15,7 +15,14 @@ class GenreView(ViewSet):
     
     try:
       genre = Genre.objects.get(pk=pk)
-      serializer = GenreSerializer(genre)
+      song_list = SongGenre.objects.filter(genre_id = genre.pk)
+      
+      songs = []
+      for e in song_list:
+        songs.append(e.song_id_id)
+        
+      genre.songs = Song.objects.filter(pk__in = songs)
+      serializer = SingleGenreSerializer(genre)
       return Response(serializer.data)
     except Genre.DoesNotExist as ex:
       return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
@@ -62,6 +69,12 @@ class GenreView(ViewSet):
     genre = Genre.objects.get(pk=pk)
     genre.delete()
     return Response(None, status=status.HTTP_204_NO_CONTENT)
+  
+class SongSerializer(serializers.ModelSerializer):
+  """JSON serializer for songs"""
+  class Meta:
+    model = Song
+    fields = ('id', 'title', 'artist_id', 'album', 'length')
     
       
 
@@ -70,3 +83,10 @@ class GenreSerializer(serializers.ModelSerializer):
   class Meta:
     model= Genre
     fields= ('id', 'description')
+
+class SingleGenreSerializer(serializers.ModelSerializer):
+  """JSON serializer for genres"""
+  songs = SongSerializer(many=True)
+  class Meta:
+    model= Genre
+    fields= ('id', 'description', 'songs')

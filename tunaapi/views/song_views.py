@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from tunaapi.models import Song, Artist
+from tunaapi.models import Song, Artist, Genre, SongGenre
 
 class SongView(ViewSet):
   """Tuna Piano Song View"""
@@ -15,7 +15,20 @@ class SongView(ViewSet):
     
     try:
       song = Song.objects.get(pk=pk)
-      serializer = SongSerializer(song)
+      genre_list = SongGenre.objects.filter(song_id = song.pk)
+      # song.genres = genre_list.genre_set.all()
+      # song.genres = genre_list
+      # genres = Genre.objects.filter(pk__in=genre_list.genre_id)
+      # song.genres = genres
+      # genres = Genre.objects.exists(pk=genre_list.genre_id_id)
+      genres = []
+      
+      for e in genre_list:
+        genres.append(e.genre_id_id)
+        print(e.genre_id_id)
+      
+      song.genres = Genre.objects.filter(pk__in = genres)
+      serializer = SingleSongSerializer(song)
       return Response(serializer.data)
     except Song.DoesNotExist as ex:
       return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
@@ -75,9 +88,30 @@ class SongView(ViewSet):
     song = Song.objects.get(pk=pk)
     song.delete()
     return Response(None, status=status.HTTP_204_NO_CONTENT)
+  
+class GenreSerializer(serializers.ModelSerializer):
+  """JSON serializer for genres"""
+  class Meta:
+    model= Genre
+    fields= ('id', 'description')
+  
+# class SongGenreSerializer(serializers.ModelSerializer):
+#   genre = GenreSerializer()
+#   class Meta:
+#     model= SongGenre
+#     fields=('genre',)
+#     depth = 1
 
 class SongSerializer(serializers.ModelSerializer):
   """JSON serializer for songs"""
   class Meta:
     model = Song
     fields = ('id', 'title', 'artist_id', 'album', 'length')
+
+class SingleSongSerializer(serializers.ModelSerializer):
+  """JSON serializer for songs"""
+  genres = GenreSerializer(many=True)
+  class Meta:
+    model = Song
+    fields = ('id', 'title', 'artist_id', 'album', 'length', 'genres')
+    depth = 1
