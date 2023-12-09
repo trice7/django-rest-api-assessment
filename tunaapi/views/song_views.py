@@ -16,16 +16,10 @@ class SongView(ViewSet):
     try:
       song = Song.objects.get(pk=pk)
       genre_list = SongGenre.objects.filter(song_id = song.pk)
-      # song.genres = genre_list.genre_set.all()
-      # song.genres = genre_list
-      # genres = Genre.objects.filter(pk__in=genre_list.genre_id)
-      # song.genres = genres
-      # genres = Genre.objects.exists(pk=genre_list.genre_id_id)
-      genres = []
       
+      genres = []
       for e in genre_list:
         genres.append(e.genre_id_id)
-        print(e.genre_id_id)
       
       song.genres = Genre.objects.filter(pk__in = genres)
       serializer = SingleSongSerializer(song)
