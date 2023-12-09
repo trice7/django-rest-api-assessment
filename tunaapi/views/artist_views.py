@@ -1,5 +1,6 @@
 """View module for handling requests for artists"""
 from django.http import HttpResponseServerError
+from django.db.models import Count
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
@@ -14,7 +15,7 @@ class ArtistView(ViewSet):
     Returns -> Response -- JSON serialized artist"""
     
     try:
-      artist = Artist.objects.get(pk=pk)
+      artist = Artist.objects.annotate(song_count = Count('song_list')).get(pk=pk)
       artist.songs = Song.objects.filter(artist_id = artist.pk)
       serializer = SingleArtistSerializer(artist)
       return Response(serializer.data)
@@ -85,7 +86,8 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 class SingleArtistSerializer(serializers.ModelSerializer):
   """JSON serializer for artists"""
+  song_count = serializers.IntegerField(default=None)
   songs = SongSerializer(many=True)
   class Meta:
     model = Artist
-    fields = ('id', 'name', 'age', 'bio', 'songs')
+    fields = ('id', 'name', 'age', 'bio', 'song_count', 'songs')
